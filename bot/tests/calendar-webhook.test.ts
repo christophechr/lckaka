@@ -1,10 +1,14 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { CalendarWebhook } from "../src/bot/calendar-webhook.js";
 import { WeeklyScheduleWorker } from "../src/bot/weekly-schedule-worker.js";
 import type { WeeklyScheduleDeliveryStore } from "../src/db/weekly-schedule-repository.js";
 
 describe("calendar webhook", () => {
+  afterEach(() => vi.useRealTimers());
+
   it.each(["LCK", "LEC"] as const)("publishes only %s matches to that calendar's webhook", async competition => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-10-20T18:00:00Z"));
     const requests: Array<{ url: URL; init?: RequestInit }> = [];
     const guilds: string[] = [];
     const receipts: string[] = [];
@@ -36,11 +40,13 @@ describe("calendar webhook", () => {
     expect(requests[1]?.url.pathname).toBe(`/api/webhooks/1/${competition}-token`);
     expect(requests[1]?.url.searchParams.get("thread_id")).toBe("42");
     expect(requests[1]?.url.searchParams.get("wait")).toBe("true");
-    expect(JSON.parse(String(requests[1]?.init?.body))).toMatchObject({
+    const payload = JSON.parse(String(requests[1]?.init?.body));
+    expect(payload).toMatchObject({
       embeds: [{ title: `${competition} — Matchs de la semaine`, description: expect.stringContaining("cette semaine") }], allowed_mentions: { parse: [] },
     });
-    expect(String(requests[1]?.init?.body)).toContain(competition === "LCK" ? "T1" : "G2");
-    expect(String(requests[1]?.init?.body)).not.toContain(competition === "LCK" ? "G2" : "T1");
+    const fields = JSON.stringify(payload.embeds[0].fields);
+    expect(fields).toContain(competition === "LCK" ? "T1" : "G2");
+    expect(fields).not.toContain(competition === "LCK" ? "G2" : "T1");
   });
 
   it.each([
