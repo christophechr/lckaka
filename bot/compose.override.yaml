@@ -1,0 +1,5 @@
+# Chargé automatiquement en local : construit l'image depuis les sources.
+# Absent sur le VPS, qui utilise uniquement l'image publiée sur GHCR.
+services:
+  app:
+    build: .

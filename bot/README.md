@@ -165,7 +165,16 @@ Docker Desktop ne maintient pas le bot actif pendant la veille du Mac. Pour une 
 
 ## Déployer sur un VPS avec Docker Compose
 
-Après avoir copié le projet et créé `.env` :
+Le workflow `.github/workflows/deploy-bot.yml` teste le code, construit l'image, la publie sur GHCR puis la déploie en SSH (référence par digest). Le VPS n'a besoin que de Docker, d'un dossier (`/opt/lckaka-bot` par défaut) et de son `.env` :
+
+```bash
+sudo mkdir -p /opt/lckaka-bot && cd /opt/lckaka-bot
+nano .env   # voir .env.example
+```
+
+Configuration GitHub : secrets `VPS_HOST`, `VPS_USER`, `VPS_SSH_KEY`, `VPS_KNOWN_HOSTS` et, au besoin, variables `VPS_SSH_PORT` et `VPS_PATH`, dans l'environnement `production`. Le workflow copie `compose.yaml`, enregistre les commandes Discord, puis lance `docker compose up -d`. Pour revenir en arrière : `APP_IMAGE=ghcr.io/<compte>/<depot>-bot:<sha> docker compose up -d`.
+
+En local, `compose.override.yaml` construit l'image depuis les sources :
 
 ```bash
 docker compose build
@@ -174,7 +183,7 @@ docker compose up -d
 docker compose logs -f app
 ```
 
-PostgreSQL n'expose aucun port public. Ses données sont conservées dans le volume `postgres_data`. L'application attend que la base soit saine et applique automatiquement les migrations.
+PostgreSQL n'expose aucun port public. Ses données sont conservées dans le volume Docker nommé `lckaka-bot-postgres-data`, qui survit aux redéploiements et aux recréations de conteneur ; ne lance jamais `docker compose down -v`. Chaque déploiement sauvegarde la base dans `backups/` (14 dernières conservées). L'application attend que la base soit saine et applique automatiquement les migrations.
 
 Créer une sauvegarde :
 
@@ -185,7 +194,7 @@ docker compose exec postgres pg_dump -U lck_bot lck_bot > lck_bot_backup.sql
 Mettre à jour le service :
 
 ```bash
-docker compose build --pull
+docker compose pull app
 docker compose up -d
 ```
 

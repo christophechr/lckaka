@@ -1,3 +1,5 @@
+name: lckaka-bot
+
 services:
   postgres:
     image: postgres:18-alpine
@@ -15,7 +17,7 @@ services:
       - postgres_data:/var/lib/postgresql
 
   app:
-    build: .
+    image: ${APP_IMAGE:-ghcr.io/christophechr/lckaka-bot:latest}
     restart: unless-stopped
     env_file: .env
     environment:
@@ -27,3 +29,5 @@ services:
 
 volumes:
   postgres_data:
+    # Nom fixe : indépendant du dossier ou du nom de projet Compose.
+    name: lckaka-bot-postgres-data
