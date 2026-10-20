@@ -67,6 +67,8 @@ jobs:
         with:
           context: bot
           push: true
+          labels: |
+            org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
           tags: |
             ${{ steps.name.outputs.name }}:latest
             ${{ steps.name.outputs.name }}:${{ github.sha }}
@@ -87,6 +89,9 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     environment: production
+    permissions:
+      contents: read
+      packages: read
     steps:
       - uses: actions/checkout@v4
         with:
