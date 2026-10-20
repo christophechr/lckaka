@@ -8,6 +8,10 @@ describe("official team logos", () => {
     "Hanwha Life Esports", "KT Rolster", "Kiwoom DRX", "Nongshim RedForce", "T1",
     "Movistar KOI", "Karmine Corp", "Natus Vincere", "SK Gaming", "Fnatic",
     "G2 Esports", "Team Vitality", "Team Heretics", "Shifters", "GIANTX",
+    "Bilibili Gaming", "Top Esports", "Anyone’s Legend", "Invictus Gaming",
+    "Shanghai Invictus Gaming Meituan", "Cloud9", "Cloud9 Kia", "LYON",
+    "Team Liquid", "Team Liquid Alienware", "Team Secret Whales",
+    "CTBC Flying Oyster", "MVK Esports", "LOS", "FURIA",
   ])("uses Riot assets instead of blocked Fandom redirects for %s", name => {
     const [team] = parseLeaguepediaTeams({ parse: { text: { "*":
       `<table class="cargoTable"><tr><td class="field_Team">${name}</td><td class="field_Image">${name}logo.png</td></tr></table>`,

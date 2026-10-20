@@ -1,5 +1,6 @@
 import { createHash } from "node:crypto";
 import sharp from "sharp";
+import { officialTeamLogo } from "../team-logos.js";
 
 import type { Team } from "../db/match-repository.js";
 import { prepareDiscordEmoji, type TeamEmojiGateway, type LogoPreparer } from "./team-emoji-sync.js";
@@ -79,7 +80,9 @@ export class PredictionTeamAssets implements PredictionTeamAssetStore {
     const now = Date.now();
     const missing = [...new Set(keys)].filter(key => (this.cache.get(key)?.expiresAt ?? 0) <= now);
     if (missing.length) {
-      const teams = await this.catalog.findTeams(missing);
+      const teams = (await this.catalog.findTeams(missing)).map(team => ({
+        ...team, logoUrl: officialTeamLogo(team.name) ?? team.logoUrl,
+      }));
       const emojis = await this.gateway.listApplicationEmojis();
       for (const team of teams) {
         if ((this.cache.get(team.key)?.expiresAt ?? 0) > now) continue;

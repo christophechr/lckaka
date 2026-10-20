@@ -44,7 +44,25 @@ describe("subscription source", () => {
     expect(events.find(event => event.key === "worlds-2026")?.teams[0]?.key).toBe("t1");
     expect(queries.at(-1)).toContain('TR.OverviewPage="2026 Season World Championship/Play-In"');
     expect(queries.at(-1)).toContain('TR.OverviewPage="2026 Season World Championship/Main Event"');
+    expect(queries.at(-1)).toContain('TR.OverviewPage="2026 Season World Championship/Swiss Stage"');
+    expect(queries.at(-1)).toContain('TR.OverviewPage="2026 Season World Championship/Knockout Stage"');
     expect(queries.at(-1)).not.toContain('LIKE');
+  });
+  it.each(["missing", "incomplete", "available"])("opens Worlds 2026 with %s overview dates", async mode => {
+    const fetcher: typeof fetch = async input => {
+      const query = new URL(input.toString()).searchParams.get("text")!;
+      if (query.includes("tables=Tournaments=T")) return table([
+        dates("LEC/2026 Season/Summer Season", "2026-07-24", "2026-08-30"),
+        ...(mode === "missing" ? [] : [dates("2026 Season World Championship",
+          mode === "incomplete" ? "" : "2026-10-16", "2026-11-14")]),
+      ].join(""));
+      return table('<tr><td class="field_Team">T1</td></tr>');
+    };
+    const events = await fetchSubscriptionCompetitions(new Date("2026-10-20T12:00:00Z"), fetcher);
+    expect(events.find(event => event.key === "worlds-2026")).toMatchObject({
+      title: "Worlds 2026", startsOn: mode === "available" ? "2026-10-16" : "2026-10-15",
+      endsOn: "2026-11-14", teams: [{ key: "t1", name: "T1" }],
+    });
   });
   it("excludes qualifying tournaments and showmatches from participant lists", async () => {
     const rosterQueries: string[] = [];

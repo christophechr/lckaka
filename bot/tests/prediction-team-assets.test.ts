@@ -12,6 +12,15 @@ describe("prediction team assets", () => {
     expect(color).toBe(0xee2233);
   });
 
+  it("replaces a stored Fandom logo with the official Worlds asset", async () => {
+    const prepare = vi.fn(logo);
+    const catalog = { findTeams: async () => [{ key: "bilibili-gaming", name: "Bilibili Gaming", logoUrl: "https://lol.fandom.com/wiki/Special:Redirect/file/BLG.png" }] };
+    const gateway = { listApplicationEmojis: vi.fn(async () => []), createApplicationEmoji: vi.fn(async (name: string) => ({ id: "blg", name })), deleteApplicationEmoji: vi.fn() };
+    const teams = await new PredictionTeamAssets(catalog, gateway, prepare).findTeams(["bilibili-gaming"]);
+    expect(prepare).toHaveBeenCalledWith("https://static.lolesports.com/teams/1682322954525_Bilibili_Gaming_logo_20211.png");
+    expect(teams[0]?.emojiId).toBe("blg");
+  });
+
   it("reuses existing emojis and caches repeated lookups", async () => {
     const catalog = { findTeams: vi.fn(async () => [{ key: "t1", name: "T1", logoUrl: "https://example.com/logo", emojiId: "123" }]) };
     const gateway = { listApplicationEmojis: vi.fn(async () => [{ id: "123", name: "existing_t1" }]), createApplicationEmoji: vi.fn(), deleteApplicationEmoji: vi.fn() };

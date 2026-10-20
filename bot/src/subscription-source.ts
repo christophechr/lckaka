@@ -30,6 +30,19 @@ export async function fetchSubscriptionCompetitions(
     "order by=T.DateStart DESC",
   ], fetcher));
 
+  // Riot's confirmed dates keep the panel available when the overview has no Cargo dates.
+  // https://lolesports.com/en-US/news/worlds-2026-primer
+  const worldsPage = "2026 Season World Championship";
+  if (pages.includes(worldsPage)) {
+    const worlds = dates.find(date => date.overviewPage === worldsPage);
+    if (worlds) {
+      worlds.startsOn ??= "2026-10-15";
+      worlds.endsOn ??= "2026-11-14";
+    } else {
+      dates.push({ overviewPage: worldsPage, startsOn: "2026-10-15", endsOn: "2026-11-14" });
+    }
+  }
+
   const lecDates = dates.filter(date => date.overviewPage.startsWith("LEC/") && date.startsOn)
     .sort((a, b) => b.startsOn!.localeCompare(a.startsOn!));
   const currentLec = lecDates.filter(date => date.overviewPage.startsWith(`LEC/${year} Season/`));
@@ -48,10 +61,11 @@ export async function fetchSubscriptionCompetitions(
     const competition: SubscriptionCompetition = { ...event, teams: [] };
     // Prepare rosters before J-10 so the panel can open at midnight without a source request.
     if (isSubscriptionOpen(competition, now) || isSubscriptionOpen(competition, today.plus({ days: 1 }).toJSDate())) {
-      // Worlds stores participants on its two stage pages. Other events store the
+      // Worlds stores participants on stage pages. Other events store the
       // main roster at the root; their child pages include qualifiers/showmatches.
       const rosterPages = event.key.startsWith("worlds-")
-        ? [event.overviewPage, `${event.overviewPage}/Play-In`, `${event.overviewPage}/Main Event`]
+        ? [event.overviewPage, ...["Play-In", "Main Event", "Swiss Stage", "Knockout Stage"]
+          .map(stage => `${event.overviewPage}/${stage}`)]
         : [event.overviewPage];
       competition.teams = parseLeaguepediaTeams(await query([
         "tables=TournamentRosters=TR,Teams=T",

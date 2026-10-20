@@ -1,6 +1,12 @@
 import { teamKey } from "../leaguepedia.js";
 
 const TEAM_ACRONYMS: Record<string, string> = {
+  "bilibili-gaming": "BLG",
+  "top-esports": "TES",
+  "anyone-s-legend": "AL",
+  "anyones-legend": "AL",
+  "invictus-gaming": "IG",
+  "shanghai-invictus-gaming-meituan": "IG",
   "giantx": "GX",
   "natus-vincere": "NAVI",
   "hanwha-life-esports": "HLE",

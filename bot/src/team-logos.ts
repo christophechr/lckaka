@@ -1,6 +1,18 @@
-// Official LCK/LEC logo assets published by https://lolesports.com/en-US/ (2026-09-18).
+// Official LCK/LEC and Worlds logo assets published by https://lolesports.com/en-US/ (2026-10-20).
 // Keep Leaguepedia as the fallback for teams outside this catalog.
 const RIOT_TEAM_LOGOS: Record<string, string> = {
+  anyoneslegend: "https://static.lolesports.com/teams/1641199582689_.png",
+  bilibiligaming: "https://static.lolesports.com/teams/1682322954525_Bilibili_Gaming_logo_20211.png",
+  ctbcflyingoyster: "https://static.lolesports.com/teams/1656307849320_CFO_Logo.png",
+  cloud9kia: "https://static.lolesports.com/teams/1736924120254_C9Kia_IconBlue_Transparent_2000x2000.png",
+  furia: "https://static.lolesports.com/teams/FURIA---black.png",
+  invictusgaming: "https://static.lolesports.com/teams/1634762917340_300px-Invictus_Gaming_logo.png",
+  los: "https://static.lolesports.com/teams/1784013312149_LOS-OLaranja.png",
+  lyon: "https://static.lolesports.com/teams/1743717443673_isotypelyon-03.png",
+  mvkesports: "https://static.lolesports.com/teams/1767089709161_White_Logo.png",
+  topesports: "https://static.lolesports.com/teams/1592592064571_TopEsportsTES-01-FullonDark.png",
+  teamliquidalienware: "https://static.lolesports.com/teams/1769357207762_TLAlienware_Minimal_Bug-White.png",
+  teamsecretwhales: "https://static.lolesports.com/teams/1774598000328_White_EyeText_600p.png",
   t1: "https://static.lolesports.com/teams/1726801573959_539px-T1_2019_full_allmode.png",
   natusvincere: "https://static.lolesports.com/teams/1752746833620_NAVI_FullColor.png",
   skgaming: "https://static.lolesports.com/teams/1643979272144_SK_Monochrome.png",
@@ -25,5 +37,9 @@ const RIOT_TEAM_LOGOS: Record<string, string> = {
 
 export function officialTeamLogo(name: string): string | undefined {
   const key = name.toLowerCase().replace(/[^a-z0-9]/g, "");
-  return RIOT_TEAM_LOGOS[key === "gengesports" ? "geng" : key];
+  const aliases: Record<string, string> = {
+    gengesports: "geng", cloud9: "cloud9kia", teamliquid: "teamliquidalienware",
+    shanghaiinvictusgamingmeituan: "invictusgaming",
+  };
+  return RIOT_TEAM_LOGOS[aliases[key] ?? key];
 }
